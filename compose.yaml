@@ -18,8 +18,8 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       # Redirect HTTP to HTTPS (optional - comment out if not needed)
-      # - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      # - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
       # Logging
       - --log.level=INFO
     ports:
