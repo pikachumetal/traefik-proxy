@@ -135,28 +135,24 @@ tls:
 
 Los dominios `.local` requieren configuracion en el archivo hosts del sistema.
 
-### Usar script (recomendado)
+Cada proyecto tiene su propio script `setup-hosts` que configura sus dominios:
 
-**Windows (PowerShell como Administrador):**
+**dev-tools:**
 ```powershell
+# Windows (usa gsudo)
 .\scripts\setup-hosts.ps1
+
+# Linux/macOS
+./scripts/setup-hosts.sh
 ```
 
-**Linux/macOS:**
-```bash
-sudo ./scripts/setup-hosts.sh
-```
-
-### Para eliminar las entradas
-
-**Windows:**
+**ALC Stronghold Platform:**
 ```powershell
-.\scripts\setup-hosts.ps1 -Remove
-```
+# Windows (usa gsudo)
+.\scripts\setup-hosts.ps1
 
-**Linux/macOS:**
-```bash
-sudo ./scripts/setup-hosts.sh --remove
+# Linux/macOS
+./scripts/setup-hosts.sh
 ```
 
 ### Configuracion manual
@@ -164,17 +160,6 @@ sudo ./scripts/setup-hosts.sh --remove
 Edita el archivo hosts:
 - **Windows:** `C:\Windows\System32\drivers\etc\hosts`
 - **Linux/macOS:** `/etc/hosts`
-
-Añade las siguientes lineas:
-
-```
-# Local Development Domains (traefik-proxy)
-127.0.0.1	devtools.local
-127.0.0.1	sonarqube.devtools.local
-127.0.0.1	smtp.devtools.local
-127.0.0.1	alcstronghold.local
-127.0.0.1	backend.alcstronghold.local
-```
 
 ## Conectar otros proyectos
 
@@ -223,9 +208,6 @@ traefik-proxy/
 │   ├── devtools.local-key.pem
 │   ├── alcstronghold.local.pem
 │   └── alcstronghold.local-key.pem
-├── scripts/
-│   ├── setup-hosts.ps1          # Configurar hosts (Windows)
-│   └── setup-hosts.sh           # Configurar hosts (Linux/macOS)
 ├── .env.example
 └── .gitignore
 ```
