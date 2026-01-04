@@ -1,0 +1,40 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Certificates (sensitive)
+certs/*.pem
+certs/*.crt
+certs/*.key
+
+# IDE - JetBrains
+.idea/
+
+# IDE - Visual Studio
+.vs/
+*.suo
+*.user
+
+# Claude Code
+!.claude/
+.claude/settings.local.json
+!.mcp.json
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~

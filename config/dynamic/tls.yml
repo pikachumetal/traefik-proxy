@@ -1,0 +1,11 @@
+# TLS Certificates Configuration
+
+tls:
+  certificates:
+    # ALC Stronghold wildcard certificate (*.alcstronghold.local)
+    - certFile: /certs/alcstronghold.local.pem
+      keyFile: /certs/alcstronghold.local-key.pem
+
+    # Dev Tools wildcard certificate (*.devtools.local)
+    - certFile: /certs/devtools.local.pem
+      keyFile: /certs/devtools.local-key.pem
