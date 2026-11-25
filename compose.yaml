@@ -7,6 +7,8 @@ services:
       # API / Dashboard
       - --api.dashboard=true
       - --api.insecure=true
+      # Healthcheck
+      - --ping=true
       # Docker provider
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -22,6 +24,11 @@ services:
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       # Logging
       - --log.level=INFO
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     ports:
       - "127.0.0.1:80:80"
       - "127.0.0.1:443:443"
