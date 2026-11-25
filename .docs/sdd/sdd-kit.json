@@ -59,5 +59,8 @@
       }
     }
   },
-  "updated": "2026-11-25"
+  "updated": "2026-11-25",
+  "release": {
+    "hasRecipient": true
+  }
 }
