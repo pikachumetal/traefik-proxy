@@ -1,80 +1,19 @@
 # CLAUDE.md
 
-Informacion del proyecto para Claude Code.
+Traefik centralizado para el desarrollo local: punto de entrada HTTP/HTTPS único para los proyectos conectados.
 
-## Descripcion
+## Documentos
 
-Traefik Proxy centralizado para todos los proyectos de desarrollo local. Actua como unico punto de entrada HTTP/HTTPS evitando conflictos de puertos entre proyectos.
+- Producto, usuarios y glosario: `PRODUCT.md`
+- Reglas no negociables y reglas de producto: `.docs/sdd/steering/constitution.md`
+- Comandos y cómo se prueba: `.docs/sdd/steering/operations.md`
+- Estructura, piezas y dónde va lo nuevo: `.docs/sdd/steering/architecture.md`
+- Trabajo pendiente: `ROADMAP.md` · Historial: `CHANGELOG.md`
+- Cómo conectar un proyecto (labels, red, certificados): `README.md`
 
-## Arquitectura
+## Reglas críticas
 
-### Red Docker
-
-- **traefik-public**: Red externa compartida por todos los proyectos
-  - Nombre fijo: `traefik-public`
-  - Los proyectos la declaran como `external: true`
-
-### Puertos
-
-- 80: HTTP
-- 443: HTTPS (con certificados TLS)
-- 8080: Dashboard de Traefik
-
-### Providers
-
-- **Docker**: Autodescubrimiento de servicios via labels
-- **File**: Configuracion dinamica desde `config/dynamic/`
-
-## Archivos importantes
-
-| Archivo | Proposito |
-|---------|-----------|
-| `compose.yaml` | Definicion del servicio Traefik |
-| `config/dynamic/tls.yml` | Configuracion de certificados TLS |
-| `certs/` | Carpeta de certificados (ignorada por git) |
-
-## Proyectos conectados
-
-- **dev-tools**: SonarQube, smtp4dev
-- **ALC Stronghold Platform**: Directus CMS
-
-## Comandos utiles
-
-```bash
-# Iniciar
-docker compose up -d
-
-# Ver logs
-docker compose logs -f
-
-# Reiniciar
-docker compose restart
-
-# Ver estado
-docker ps | grep traefik
-```
-
-## Configuracion de otros proyectos
-
-Para conectar un proyecto a este Traefik:
-
-```yaml
-# En docker-compose.yml del proyecto
-
-networks:
-  traefik-public:
-    external: true
-
-services:
-  mi-servicio:
-    networks:
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.xxx.rule=Host(`xxx.localhost`)"
-      - "traefik.http.services.xxx.loadbalancer.server.port=PUERTO"
-```
-
-## Certificados TLS disponibles
-
-- `alcstronghold.local.pem` - Wildcard para *.alcstronghold.local
+- Nunca commitear `certs/*.pem`, `*.key` ni `*.crt`.
+- Un cambio aquí afecta a todos los proyectos conectados: antes de cerrar, `docker compose config --quiet` y `docker compose up -d --wait`.
+- Las rutas de cada proyecto viven en las labels de su propio `compose.yaml`; aquí solo se registra su certificado con `node scripts/add-project-cert.mjs <proyecto>`.
+- Sin gestor de tickets: el trabajo vive en `ROADMAP.md`. Sin worktrees: se trabaja en ramas sobre el checkout principal.

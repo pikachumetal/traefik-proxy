@@ -1,39 +1,102 @@
 services:
   traefik:
-    image: traefik:latest
+    image: traefik:v3.8.0
     container_name: traefik-proxy
     restart: unless-stopped
+    # El margen sobre el consumo normal evita alcanzar el límite con LOG_LEVEL=DEBUG
+    mem_limit: 256m
+    cpus: 1.0
+    # Si lo comprometen, que no escale privilegios, no escriba en el contenedor y solo pueda abrir puertos <1024
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
     command:
-      # API / Dashboard
+      # API y dashboard (por el router de config/dynamic/dashboard.yml)
       - --api.dashboard=true
-      - --api.insecure=true
-      # Docker provider
+      # Endpoint /ping para el healthcheck
+      - --ping=true
+      # Provider Docker, a través de socket-proxy: Traefik no monta docker.sock
       - --providers.docker=true
+      - --providers.docker.endpoint=tcp://socket-proxy:2375
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik-public
-      # File provider (for TLS certificates)
+      # Provider File (certificados y router del dashboard)
       - --providers.file.directory=/config/dynamic
       - --providers.file.watch=true
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-      # Redirect HTTP to HTTPS (optional - comment out if not needed)
+      # Solo dentro del contenedor, para /ping; debe coincidir con el healthcheck
+      - --entrypoints.traefik.address=:8080
+      # Redirección de HTTP a HTTPS
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      # Logging
-      - --log.level=INFO
+      # Nivel de log (LOG_LEVEL en .env)
+      - --log.level=${LOG_LEVEL:-INFO}
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping", "--entrypoints.traefik.address=:8080"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/dynamic:/config/dynamic:ro
       - ./certs:/certs:ro
     networks:
       - traefik-public
+      - traefik-socket-proxy
+
+  # Único servicio con docker.sock: solo deja pasar a Traefik las lecturas que necesita
+  socket-proxy:
+    image: wollomatic/socket-proxy:1.14.0
+    container_name: traefik-socket-proxy
+    restart: unless-stopped
+    # Sin root; el grupo dueño del socket: 0 en Docker Desktop, el de docker en Linux (DOCKER_GID en .env)
+    user: "65534:${DOCKER_GID:-0}"
+    mem_limit: 64m
+    cpus: 0.5
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    command:
+      - '-loglevel=info'
+      - '-listenip=0.0.0.0'
+      # Solo la subred de traefik-socket-proxy, donde están Traefik y este servicio
+      - '-allowfrom=10.231.0.0/29'
+      - '-allowGET=/v1\..{1,2}/(version|containers/json|containers/[^/]+/json|events)'
+      - '-allowHEAD=/_ping'
+      - '-allowhealthcheck'
+      - '-watchdoginterval=3600'
+      - '-stoponwatchdog'
+      - '-shutdowngracetime=5'
+    healthcheck:
+      test: ["CMD", "./healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik-socket-proxy
 
 networks:
   traefik-public:
     name: traefik-public
     driver: bridge
+  traefik-socket-proxy:
+    name: traefik-socket-proxy
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.231.0.0/29

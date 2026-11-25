@@ -1,0 +1,66 @@
+{
+  "version": "3.0.4",
+  "channel": "plugin",
+  "ids": {
+    "mode": "sequence"
+  },
+  "control": {
+    "profile": "delegate",
+    "maxParallelAgents": 3,
+    "silence": {
+      "betweenStepsMinutes": 8,
+      "longCommandMinutes": 20
+    }
+  },
+  "merge": {
+    "into": "develop",
+    "noFf": true,
+    "removeWorktree": false,
+    "push": true
+  },
+  "execution": "auto",
+  "validation": {
+    "mode": "manual"
+  },
+  "review": {
+    "minors": "fix"
+  },
+  "pricing": {
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "updated": "2026-11-25",
+    "usdPerMillionTokens": {
+      "claude-opus-5-5": {
+        "input": 4,
+        "cacheWrite5m": 5,
+        "cacheWrite1h": 8,
+        "cacheRead": 0.2,
+        "output": 20
+      },
+      "claude-sonnet-5-5": {
+        "input": 2,
+        "cacheWrite5m": 2.5,
+        "cacheWrite1h": 4,
+        "cacheRead": 0.1,
+        "output": 10
+      },
+      "claude-haiku-5-5": {
+        "input": 0.1,
+        "cacheWrite5m": 0.125,
+        "cacheWrite1h": 0.2,
+        "cacheRead": 0.01,
+        "output": 0.5
+      },
+      "claude-fable-5-2": {
+        "input": 8,
+        "cacheWrite5m": 10,
+        "cacheWrite1h": 16,
+        "cacheRead": 0.2,
+        "output": 40
+      }
+    }
+  },
+  "updated": "2026-11-25",
+  "release": {
+    "hasRecipient": true
+  }
+}

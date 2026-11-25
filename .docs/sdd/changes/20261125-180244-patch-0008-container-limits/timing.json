@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "branch": "patch/0008-container-limits",
+  "measured": true,
+  "clockSeconds": 14716,
+  "withinMargin": true,
+  "totals": {
+    "agentSeconds": 2944,
+    "execSeconds": 1485,
+    "waitSeconds": 10288,
+    "idleSeconds": 0,
+    "gateSeconds": 278
+  },
+  "gateCommand": "docker compose up -d --wait",
+  "phases": [
+    {
+      "name": "apertura",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 484,
+      "execSeconds": 156,
+      "waitSeconds": 7152,
+      "idleSeconds": 0,
+      "gateSeconds": 0,
+      "estimateHours": null
+    },
+    {
+      "name": "implementacion",
+      "ceremony": false,
+      "measured": true,
+      "agentSeconds": 99,
+      "execSeconds": 80,
+      "waitSeconds": 0,
+      "idleSeconds": 0,
+      "gateSeconds": 33,
+      "estimateHours": null,
+      "tasks": [
+        {
+          "task": 1,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 58,
+          "execSeconds": 23,
+          "waitSeconds": 0
+        },
+        {
+          "task": 2,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 47,
+          "execSeconds": 80,
+          "waitSeconds": 0
+        },
+        {
+          "task": 3,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 0,
+          "execSeconds": 0,
+          "waitSeconds": 0
+        }
+      ]
+    },
+    {
+      "name": "revision",
+      "ceremony": true,
+      "measured": false,
+      "reason": "sin eventos: su tiempo queda en implementacion",
+      "agentSeconds": null,
+      "execSeconds": null,
+      "waitSeconds": null,
+      "idleSeconds": null,
+      "gateSeconds": null,
+      "estimateHours": null
+    },
+    {
+      "name": "cierre",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 2361,
+      "execSeconds": 1249,
+      "waitSeconds": 3136,
+      "idleSeconds": 0,
+      "gateSeconds": 245,
+      "estimateHours": null
+    }
+  ]
+}
