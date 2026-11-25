@@ -97,11 +97,11 @@ Borra sus tres ficheros y reinicia el proxy:
 
 ## Puertos
 
-| Puerto | Descripción |
-| ------ | ----------- |
+| Puerto | Descripción             |
+| ------ | ----------------------- |
 | 80     | HTTP (redirige a HTTPS) |
-| 443    | HTTPS       |
-| 8080   | Dashboard   |
+| 443    | HTTPS                   |
+| 8080   | Dashboard               |
 
 ## Estructura
 

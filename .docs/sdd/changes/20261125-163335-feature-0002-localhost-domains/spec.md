@@ -100,7 +100,7 @@ Hoy cada proyecto conectado necesita entradas en `hosts` (con `gsudo`) para su d
 ## Scope
 
 - Entra: `scripts/add-project-cert.mjs` y su test `scripts/add-project-cert.test.mjs`; `.gitignore` con `config/dynamic/*.tls.yml`; borrar `config/dynamic/tls.yml` y añadir `config/dynamic/.gitkeep`; borrar `generate-certs.sh`; borrar los certificados `.local` locales de `certs/`; generar el certificado de `devtools` con el script; suite `scripts` en `operations.md`; `architecture.md` (estructura, piezas, flujo principal y dónde va lo nuevo); la regla de `CLAUDE.md` que nombra `tls.yml`.
-- Entra, `README.md` con este contenido mínimo: requisitos previos (mkcert y `mkcert -install` una vez, Node 18+); conectar un proyecto: el comando `node ../traefik-proxy/scripts/add-project-cert.mjs <proyecto>` (ruta relativa desde un repo hermano), la red externa y un ejemplo de labels con router `<proyecto>-<servicio>`, `Host(\`<servicio>.<proyecto>.localhost\`)`, `entrypoints=websecure` y `tls=true`; que los servicios se llaman entre sí por su nombre en `traefik-public`, no por el dominio del proxy; renovar (volver a ejecutar el script al caducar el certificado o al cambiar la CA); retirar un proyecto (borrar sus tres ficheros); estructura y proyectos conectados (solo `dev-tools`, `*.devtools.localhost`). Se quitan las secciones de hosts, de scripts por proyecto y todo lo `.local` y de ALC Stronghold.
+- Entra, `README.md` con este contenido mínimo: requisitos previos (mkcert y `mkcert -install` una vez, Node 22+); conectar un proyecto: el comando `node ../traefik-proxy/scripts/add-project-cert.mjs <proyecto>` (ruta relativa desde un repo hermano), la red externa y un ejemplo de labels con router `<proyecto>-<servicio>`, `Host(\`<servicio>.<proyecto>.localhost\`)`, `entrypoints=websecure` y `tls=true`; que los servicios se llaman entre sí por su nombre en `traefik-public`, no por el dominio del proxy; renovar (volver a ejecutar el script al caducar el certificado o al cambiar la CA); retirar un proyecto (borrar sus tres ficheros); estructura y proyectos conectados (solo `dev-tools`, `*.devtools.localhost`). Se quitan las secciones de hosts, de scripts por proyecto y todo lo `.local` y de ALC Stronghold.
 - No entra: cambios en el repo `dev-tools` (labels, `generate-certs.ps1`, `setup-hosts`); un comando para quitar el certificado de un proyecto; ALC Stronghold; un script `setup-hosts` en este repo (decisión 17); cambios en `compose.yaml`.
 
 ## Lo que se retira o cambia de forma
@@ -181,7 +181,7 @@ El script: valida el nombre (decisión 7), resuelve `certs/` y `config/dynamic/`
 
 #### ADDED — Traefik sirve el certificado del proyecto
 
-- GIVEN el proxy levantado y `devtools` registrado con el script (sin reiniciar el proxy, o tras `docker compose restart` si la medición de la decisión 18 lo exige)
+- GIVEN el proxy levantado, `devtools` registrado con el script y el proxy reiniciado con `docker compose restart` (sin reiniciar, el provider File no recoge el registro nuevo en Docker Desktop)
 - WHEN se abre una conexión TLS a `127.0.0.1:443` con SNI `smtp.devtools.localhost`, verificando contra `rootCA.pem` de mkcert
 - THEN la conexión sale verificada (`authorized: true`) y el certificado presentado es el de `*.devtools.localhost`
 
@@ -194,6 +194,9 @@ El script: valida el nombre (decisión 7), resuelve `certs/` y `config/dynamic/`
 - **Regla ante conflicto**: la de la constitution: cada proyecto es dueño exclusivo de `*.<proyecto>.localhost` y de su certificado. Volver a ejecutar el script para un proyecto sobrescribe solo los suyos; dos repos con el mismo nombre no se detectan, y el último sobrescribe al anterior.
 
 ## Enmiendas
+
+- 2026-11-25 — Scope: «Node 18+» del contenido mínimo de `README.md` pasa a «Node 22+» — contradicción interna con la decisión 16 y las restricciones del plan, hallada por el eje Spec de la revisión final — pasada de fix — sin aprobar (alinea el Scope con una decisión ya aprobada)
+- 2026-11-25 — GIVEN de «Traefik sirve el certificado del proyecto»: queda la rama «tras `docker compose restart`» — aplica el resultado de la medición prevista en la decisión 18 (Task 2: tras 20 s sin reiniciar seguía el autofirmado; tras reiniciar, `authorized: true`) y quita la referencia a la decisión que rechaza `capability merge` — medido en la Task 2, escrito en el cierre (borrador de capacidades) — sin aprobar (aplica una rama ya aprobada de la spec)
 
 ## Aprobaciones
 

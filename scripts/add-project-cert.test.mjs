@@ -1,6 +1,6 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readdirSync, existsSync, readFileSync, writeFileSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readdirSync, existsSync, readFileSync, writeFileSync, copyFileSync, rmSync, symlinkSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -18,11 +18,11 @@ function tempDir() {
   return dir;
 }
 
-function fakeMkcert({ fail = false } = {}) {
+function fakeMkcert({ fail = false, silent = false } = {}) {
   const dir = tempDir();
   const fake = join(dir, 'fake-mkcert.mjs');
   const body = fail
-    ? "process.stderr.write('boom'); process.exit(1);"
+    ? `${silent ? '' : "process.stderr.write('boom'); "}process.exit(1);`
     : `import { writeFileSync } from 'node:fs';
 const args = process.argv.slice(2);
 writeFileSync(args[1], 'cert ' + Date.now() + Math.random());
@@ -74,7 +74,7 @@ test('rejects extra arguments with usage', () => {
 });
 
 test('invalid name writes nothing', () => {
-  for (const name of ['Dev Tools', '../x']) {
+  for (const name of ['Dev Tools', '../x', '..', 'a\nb', 'demo-', 'a'.repeat(64), 'Demo']) {
     const rootDir = tempDir();
     const result = main([name], { rootDir, ...fakeMkcert() });
     assert.equal(result.code, 1);
@@ -105,6 +105,28 @@ test('mkcert fails', () => {
   assert.equal(existsSync(join(rootDir, 'config', 'dynamic', 'demo.tls.yml')), false);
 });
 
+test('mkcert fails without stderr reports its exit code', () => {
+  const rootDir = tempDir();
+  const result = main(['demo'], { rootDir, ...fakeMkcert({ fail: true, silent: true }) });
+  assert.equal(result.code, 1);
+  assert.match(result.stderr, /mkcert falló: código 1/);
+});
+
+test('runs when launched through a junction or symlink', () => {
+  const linkDir = join(tempDir(), 'linked-scripts');
+  symlinkSync(dirname(scriptPath), linkDir, 'junction');
+  const result = spawnSync(process.execPath, [join(linkDir, 'add-project-cert.mjs')], { encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /uso: node scripts\/add-project-cert\.mjs <proyecto>/);
+});
+
+test('creates certs dir when missing', () => {
+  const rootDir = tempDir();
+  assert.equal(existsSync(join(rootDir, 'certs')), false);
+  main(['demo'], { rootDir, ...fakeMkcert() });
+  assert.equal(existsSync(join(rootDir, 'certs')), true);
+});
+
 test('generates and registers, creating certs dir when missing', () => {
   const rootDir = tempDir();
   const fake = fakeMkcert();
@@ -130,7 +152,9 @@ test('leaves other registrations untouched', () => {
   const dynamicDir = join(rootDir, 'config', 'dynamic');
   mkdirSync(dynamicDir, { recursive: true });
   writeFileSync(join(dynamicDir, 'other.tls.yml'), 'other');
-  main(['demo'], { rootDir, ...fakeMkcert() });
+  const result = main(['demo'], { rootDir, ...fakeMkcert() });
+  assert.equal(result.code, 0);
+  assert.equal(existsSync(join(dynamicDir, 'demo.tls.yml')), true);
   assert.equal(readFileSync(join(dynamicDir, 'other.tls.yml'), 'utf8'), 'other');
 });
 
