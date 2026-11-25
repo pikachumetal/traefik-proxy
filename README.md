@@ -4,13 +4,13 @@ Proxy inverso centralizado para todos los proyectos de desarrollo local.
 
 ## Descripción
 
-Este Traefik actua como punto de entrada único para todos los proyectos de desarrollo, evitando conflictos de puertos y centralizando la gestion de certificados TLS.
+Este Traefik actúa como punto de entrada único para todos los proyectos de desarrollo, evitando conflictos de puertos y centralizando los certificados TLS. Cada proyecto se sirve en `https://<servicio>.<proyecto>.localhost`: los dominios `*.localhost` resuelven a tu máquina sin tocar el fichero `hosts`.
 
 ## Requisitos
 
-- Docker Desktop
-- Docker Compose
-- [mkcert](https://github.com/FiloSottile/mkcert) (para generar certificados TLS)
+- Docker Desktop (o Docker con Compose)
+- [mkcert](https://github.com/FiloSottile/mkcert), con su CA instalada una vez: `mkcert -install`
+- Node 22 o superior (para el script de certificados)
 
 ## Instalación
 
@@ -23,159 +23,41 @@ Este Traefik actua como punto de entrada único para todos los proyectos de desa
 
 2. Copia el archivo de configuración:
 
-   **Bash:**
-
    ```bash
    cp .env.example .env
    ```
 
-   **PowerShell:**
+3. Arranca el proxy:
 
-   ```powershell
-   Copy-Item .env.example .env
+   ```bash
+   docker compose up -d
    ```
-
-3. Genera los certificados TLS (ver seccion "Certificados TLS")
-
-4. Configura el archivo hosts (ver seccion "Configuración de Hosts")
 
 ## Uso
 
-### Iniciar Traefik
-
 ```bash
-docker compose up -d
+docker compose up -d       # iniciar
+docker compose down        # detener
+docker compose logs -f     # ver logs
+docker compose restart     # reiniciar (necesario tras registrar o renovar un certificado)
 ```
 
-### Detener Traefik
+Dashboard: [http://localhost:8080](http://localhost:8080). Los puertos 80, 443 y 8080 solo escuchan en `127.0.0.1`.
 
-```bash
-docker compose down
-```
+## Conectar un proyecto
 
-### Ver logs
+1. **Genera y registra su certificado** desde el repo del proyecto (con `traefik-proxy` como repo hermano):
 
-```bash
-docker compose logs -f
-```
+   ```bash
+   node ../traefik-proxy/scripts/add-project-cert.mjs <proyecto>
+   docker compose -f ../traefik-proxy/compose.yaml restart
+   ```
 
-## Dashboard
+   El script crea `certs/<proyecto>.localhost.pem` y `certs/<proyecto>.localhost-key.pem` para `*.<proyecto>.localhost`, y los registra en `config/dynamic/<proyecto>.tls.yml`. Nada de eso entra en git. Traefik no recoge el registro nuevo hasta reiniciarlo.
 
-Accede al dashboard de Traefik en: [localhost](http://localhost:8080)
+   El nombre del proyecto admite minúsculas, números y guiones (sin guion al principio ni al final, hasta 63 caracteres).
 
-## Certificados TLS
-
-Este proxy centraliza los certificados TLS para todos los proyectos. Los certificados se generan con [mkcert](https://github.com/FiloSottile/mkcert).
-
-### Instalar mkcert
-
-**Windows (Chocolatey):**
-
-```powershell
-choco install mkcert
-mkcert -install
-```
-
-**macOS (Homebrew):**
-
-```bash
-brew install mkcert
-mkcert -install
-```
-
-**Linux:**
-
-```bash
-# Ver instrucciones en https://github.com/FiloSottile/mkcert
-```
-
-### Generar certificados manualmente
-
-```bash
-cd certs
-
-# Para *.devtools.local (dev-tools)
-mkcert -cert-file devtools.local.pem -key-file devtools.local-key.pem "*.devtools.local" devtools.local
-
-# Para *.alcstronghold.local (ALC Platform)
-mkcert -cert-file alcstronghold.local.pem -key-file alcstronghold.local-key.pem "*.alcstronghold.local" alcstronghold.local
-```
-
-### Usar scripts de los proyectos
-
-Cada proyecto tiene un script para generar sus certificados:
-
-**dev-tools:**
-
-```powershell
-# PowerShell
-.\scripts\generate-certs.ps1
-
-# Bash
-./scripts/generate-certs.sh
-```
-
-**ALC Stronghold Platform:**
-
-```powershell
-# PowerShell
-.\scripts\generate-certs.ps1
-
-# Bash
-./scripts/generate-certs.sh
-```
-
-### Registrar certificados
-
-Los certificados se registran en `config/dynamic/tls.yml`:
-
-```yaml
-tls:
-  certificates:
-    - certFile: /certs/devtools.local.pem
-      keyFile: /certs/devtools.local-key.pem
-    - certFile: /certs/alcstronghold.local.pem
-      keyFile: /certs/alcstronghold.local-key.pem
-```
-
-## Configuración de Hosts
-
-Los dominios `.local` requieren configuración en el archivo hosts del sistema.
-
-Cada proyecto tiene su propio script `setup-hosts` que configura sus dominios:
-
-**dev-tools:**
-
-```powershell
-# Windows (usa gsudo)
-.\scripts\setup-hosts.ps1
-
-# Linux/macOS
-./scripts/setup-hosts.sh
-```
-
-**ALC Stronghold Platform:**
-
-```powershell
-# Windows (usa gsudo)
-.\scripts\setup-hosts.ps1
-
-# Linux/macOS
-./scripts/setup-hosts.sh
-```
-
-### Configuración manual
-
-Edita el archivo hosts:
-
-- **Windows:** `C:\Windows\System32\drivers\etc\hosts`
-- **Linux/macOS:** `/etc/hosts`
-
-## Conectar otros proyectos
-
-Para que otros proyectos usen este Traefik:
-
-1. **Declarar la red externa** en su `compose.yaml`:
+2. **Declara la red externa** en su `compose.yaml`:
 
    ```yaml
    networks:
@@ -183,7 +65,7 @@ Para que otros proyectos usen este Traefik:
        external: true
    ```
 
-2. **Conectar servicios a la red** con labels de Traefik:
+3. **Conecta cada servicio** con labels de Traefik. El router y el service llevan el prefijo del proyecto (`<proyecto>-<servicio>`) y el servicio no publica su puerto HTTP en el host:
 
    ```yaml
    services:
@@ -193,43 +75,53 @@ Para que otros proyectos usen este Traefik:
        labels:
          - "traefik.enable=true"
          - "traefik.docker.network=traefik-public"
-         - "traefik.http.routers.mi-servicio.rule=Host(`mi-servicio.devtools.local`)"
-         - "traefik.http.routers.mi-servicio.entrypoints=websecure"
-         - "traefik.http.routers.mi-servicio.tls=true"
-         - "traefik.http.services.mi-servicio.loadbalancer.server.port=8080"
+         - "traefik.http.routers.miproyecto-mi-servicio.rule=Host(`mi-servicio.miproyecto.localhost`)"
+         - "traefik.http.routers.miproyecto-mi-servicio.entrypoints=websecure"
+         - "traefik.http.routers.miproyecto-mi-servicio.tls=true"
+         - "traefik.http.services.miproyecto-mi-servicio.loadbalancer.server.port=8080"
    ```
+
+Entre contenedores, los servicios se llaman por su nombre en la red `traefik-public` (`http://mi-servicio:8080`), no por su dominio `*.localhost`: dentro de un contenedor, `localhost` es el propio contenedor.
+
+### Renovar un certificado
+
+Vuelve a ejecutar el script con el mismo proyecto cuando caduque el certificado o cambie la CA de mkcert, y reinicia el proxy.
+
+### Retirar un proyecto
+
+Borra sus tres ficheros y reinicia el proxy:
+
+- `certs/<proyecto>.localhost.pem`
+- `certs/<proyecto>.localhost-key.pem`
+- `config/dynamic/<proyecto>.tls.yml`
 
 ## Puertos
 
 | Puerto | Descripción |
 | ------ | ----------- |
-| 80     | HTTP        |
+| 80     | HTTP (redirige a HTTPS) |
 | 443    | HTTPS       |
 | 8080   | Dashboard   |
 
 ## Estructura
 
-```bash
+```text
 traefik-proxy/
 ├── compose.yaml
+├── scripts/
+│   └── add-project-cert.mjs      # genera y registra el certificado de un proyecto
 ├── config/
-│   └── dynamic/
-│       └── tls.yml              # Configuración de certificados
-├── certs/                       # Certificados TLS (ignorados por git)
-│   ├── devtools.local.pem
-│   ├── devtools.local-key.pem
-│   ├── alcstronghold.local.pem
-│   └── alcstronghold.local-key.pem
+│   └── dynamic/                  # registros <proyecto>.tls.yml (ignorados por git)
+├── certs/                        # certificados mkcert (ignorados por git)
 ├── .env.example
 └── .gitignore
 ```
 
 ## Proyectos conectados
 
-| Proyecto       | Dominios                | Certificado               |
-| -------------- | ----------------------- | ------------------------- |
-| dev-tools      | `*.devtools.local`      | `devtools.local.pem`      |
-| ALC Stronghold | `*.alcstronghold.local` | `alcstronghold.local.pem` |
+| Proyecto  | Dominios               | Certificado               |
+| --------- | ---------------------- | ------------------------- |
+| dev-tools | `*.devtools.localhost` | `devtools.localhost.pem`  |
 
 ## Licencia
 

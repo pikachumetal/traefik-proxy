@@ -15,5 +15,5 @@ Traefik centralizado para el desarrollo local: punto de entrada HTTP/HTTPS únic
 
 - Nunca commitear `certs/*.pem`, `*.key` ni `*.crt`.
 - Un cambio aquí afecta a todos los proyectos conectados: antes de cerrar, `docker compose config --quiet` y `docker compose up -d --wait`.
-- Las rutas de cada proyecto viven en las labels de su propio `compose.yaml`; aquí solo se registra su certificado en `config/dynamic/tls.yml`.
+- Las rutas de cada proyecto viven en las labels de su propio `compose.yaml`; aquí solo se registra su certificado con `node scripts/add-project-cert.mjs <proyecto>`.
 - Sin gestor de tickets: el trabajo vive en `ROADMAP.md`. Sin worktrees: se trabaja en ramas sobre el checkout principal.
