@@ -7,7 +7,7 @@ solution: dev-lead
 status: done
 created: 2026-11-25
 branch: patch/0001-align-compose-constitution
-commit: <hash>
+commit: b6b0ee6
 ---
 
 # Patch 0001 — Alinear compose.yaml con la constitution
@@ -58,12 +58,17 @@ Los puertos 80 y 443 desde la red local se dan por cerrados con la evidencia del
 Review (sonnet, 2026-11-25):
 
 - Cobertura de 80/443 desde la red local — aceptado: rebajado a «por `docker port`», arriba; contenedor `whoami` aclarado en el caso 4 (no existió).
-- `status: done` con `commit: <hash>` y sin fin — rechazado: la plantilla nace con `status: done`, el hash y el esfuerzo real los escribe el cierre (`sdd-archive`); la estimación y el inicio se escribieron antes del fix.
+- `status: done` con el hash del commit sin rellenar y sin fin — rechazado: la plantilla nace con `status: done`, el hash y el esfuerzo real los escribe el cierre (`sdd-archive`); la estimación y el inicio se escribieron antes del fix.
 - Línea en blanco antes de §5 — aceptado.
 - `README.md` (dashboard y tabla de puertos sin mencionar loopback) — rechazado aquí: fuera del «Toca» de la 0001; lo cubre la 0002, que reescribe `README.md`.
 - Clientes por la IP del host dejan de llegar — aceptado: «Efecto buscado» en §3.
 - Working tree con cambios ajenos — aceptado: el commit va con rutas explícitas.
+
+Validado: 2026-11-25 · «validadovalidado» · no detalló qué probó
+
 ## 5. Tiempo (ligero)
 
 - Estimación: 0,25 h + el gate de cierre (`docker compose up -d --wait`), sin duración medida todavía
 - Inicio: 2026-11-25T16:13Z
+- Esfuerzo real: 0,25 h — reloj de la sesión 2,36 h desde 2026-11-25T14:03Z, sin 126 min de espera al dev-lead (44 esperas)
+- Coste de sujetos: no aplica

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "branch": "patch/0001-align-compose-constitution",
+  "measured": true,
+  "clockSeconds": 8485,
+  "withinMargin": true,
+  "totals": {
+    "agentSeconds": 634,
+    "execSeconds": 263,
+    "waitSeconds": 7588,
+    "idleSeconds": 0,
+    "gateSeconds": 45
+  },
+  "gateCommand": "docker compose up -d --wait",
+  "phases": [
+    {
+      "name": "apertura",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 484,
+      "execSeconds": 156,
+      "waitSeconds": 7152,
+      "idleSeconds": 0,
+      "gateSeconds": 0,
+      "estimateHours": null
+    },
+    {
+      "name": "implementacion",
+      "ceremony": false,
+      "measured": true,
+      "agentSeconds": 99,
+      "execSeconds": 80,
+      "waitSeconds": 0,
+      "idleSeconds": 0,
+      "gateSeconds": 33,
+      "estimateHours": null
+    },
+    {
+      "name": "revision",
+      "ceremony": true,
+      "measured": false,
+      "reason": "sin eventos: su tiempo queda en implementacion",
+      "agentSeconds": null,
+      "execSeconds": null,
+      "waitSeconds": null,
+      "idleSeconds": null,
+      "gateSeconds": null,
+      "estimateHours": null
+    },
+    {
+      "name": "cierre",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 51,
+      "execSeconds": 27,
+      "waitSeconds": 436,
+      "idleSeconds": 0,
+      "gateSeconds": 12,
+      "estimateHours": null
+    }
+  ]
+}
