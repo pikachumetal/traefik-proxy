@@ -10,7 +10,7 @@ traefik-proxy/
 ├── config/
 │   └── dynamic/            # dashboard.yml (router del dashboard) y registros <proyecto>.tls.yml (fuera de git)
 ├── certs/                  # certificados y claves mkcert (fuera de git)
-├── .env.example            # variables de entorno de ejemplo (LOG_LEVEL)
+├── .env.example            # variables de entorno de ejemplo (LOG_LEVEL, DOCKER_GID)
 ├── PRODUCT.md · ROADMAP.md · CHANGELOG.md · CLAUDE.md
 └── .docs/sdd/              # documentación SDD
 ```
@@ -41,6 +41,7 @@ traefik-proxy/
 - Proyecto conectado nuevo → sus labels en su propio `compose.yaml`; aquí, solo su certificado con `node scripts/add-project-cert.mjs <proyecto>`.
 - Middleware o configuración dinámica compartida → un fichero en `config/dynamic/` que no acabe en `.tls.yml`: ese sufijo es exclusivo de los registros del script y está fuera de git.
 - Opción de arranque de Traefik → un flag más en `command:` de `compose.yaml`.
+- Endpoint nuevo del API de Docker que pida Traefik (sale como `blocked request` en `docker logs traefik-socket-proxy` y Traefik deja de descubrir contenedores) → su ruta exacta en `-allowGET` de `socket-proxy` en `compose.yaml`.
 
 ## Decisiones estructurales
 

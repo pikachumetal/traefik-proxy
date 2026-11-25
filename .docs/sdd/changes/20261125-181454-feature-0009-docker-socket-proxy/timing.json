@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "branch": "feature/0009-docker-socket-proxy",
+  "measured": true,
+  "clockSeconds": 16022,
+  "withinMargin": true,
+  "totals": {
+    "agentSeconds": 3520,
+    "execSeconds": 1875,
+    "waitSeconds": 10627,
+    "idleSeconds": 0,
+    "gateSeconds": 398
+  },
+  "gateCommand": "docker compose up -d --wait",
+  "phases": [
+    {
+      "name": "apertura",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 484,
+      "execSeconds": 156,
+      "waitSeconds": 7152,
+      "idleSeconds": 0,
+      "gateSeconds": 0,
+      "estimateHours": 0.5
+    },
+    {
+      "name": "implementacion",
+      "ceremony": false,
+      "measured": true,
+      "agentSeconds": 99,
+      "execSeconds": 80,
+      "waitSeconds": 0,
+      "idleSeconds": 0,
+      "gateSeconds": 33,
+      "estimateHours": 0.5,
+      "tasks": [
+        {
+          "task": 1,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 58,
+          "execSeconds": 23,
+          "waitSeconds": 0
+        },
+        {
+          "task": 2,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 47,
+          "execSeconds": 80,
+          "waitSeconds": 0
+        },
+        {
+          "task": 3,
+          "source": "events",
+          "done": true,
+          "agentSeconds": 0,
+          "execSeconds": 0,
+          "waitSeconds": 0
+        }
+      ]
+    },
+    {
+      "name": "revision",
+      "ceremony": true,
+      "measured": false,
+      "reason": "sin eventos: su tiempo queda en implementacion",
+      "agentSeconds": null,
+      "execSeconds": null,
+      "waitSeconds": null,
+      "idleSeconds": null,
+      "gateSeconds": null,
+      "estimateHours": 0.25
+    },
+    {
+      "name": "cierre",
+      "ceremony": true,
+      "measured": true,
+      "agentSeconds": 2937,
+      "execSeconds": 1639,
+      "waitSeconds": 3475,
+      "idleSeconds": 0,
+      "gateSeconds": 365,
+      "estimateHours": 0.2
+    }
+  ]
+}
