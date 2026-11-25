@@ -29,6 +29,8 @@ Este Traefik actúa como punto de entrada único para todos los proyectos de des
 
    `LOG_LEVEL` (DEBUG, INFO, WARN, ERROR) fija el nivel de log de Traefik; aplícalo con `docker compose up -d`.
 
+   **En Linux nativo, `DOCKER_GID` es obligatorio**: el GID del grupo dueño de `/var/run/docker.sock` (`getent group docker | cut -d: -f3`). Sin él, `socket-proxy` no llega al socket, queda `unhealthy` y Traefik no arranca. En Docker Desktop no hace falta.
+
 3. Genera el certificado del dashboard (en cada máquina, porque queda fuera de git):
 
    ```bash
@@ -40,6 +42,12 @@ Este Traefik actúa como punto de entrada único para todos los proyectos de des
    ```bash
    docker compose up -d
    ```
+
+## Seguridad del socket de Docker
+
+Traefik no monta `/var/run/docker.sock`: lo monta solo el servicio `socket-proxy`, que únicamente deja pasar las lecturas que Traefik necesita (contenedores, eventos, versión). Los dos hablan por la red interna `traefik-socket-proxy` (subred `10.231.0.0/29`). Si esa subred choca con otra red de tu máquina, `docker compose up` falla con un error de solape: cambia la subred en `compose.yaml` y el `-allowfrom` del proxy a la vez.
+
+Si Traefik deja de ver contenedores, mira `docker logs traefik-socket-proxy`: una petición bloqueada sale como `blocked request` con su ruta.
 
 ## Uso
 
@@ -114,7 +122,7 @@ Borra sus tres ficheros y reinicia el proxy:
 
 ```text
 traefik-proxy/
-├── compose.yaml
+├── compose.yaml                  # traefik y socket-proxy
 ├── scripts/
 │   └── add-project-cert.mjs      # genera y registra el certificado de un proyecto
 ├── config/

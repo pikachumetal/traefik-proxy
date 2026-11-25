@@ -4,7 +4,7 @@
 
 ```text
 traefik-proxy/
-├── compose.yaml            # servicio traefik (flags de configuración estática), puertos y red traefik-public
+├── compose.yaml            # servicios traefik y socket-proxy, puertos y redes traefik-public y traefik-socket-proxy
 ├── scripts/
 │   └── add-project-cert.mjs  # genera con mkcert y registra el certificado de un proyecto
 ├── config/
@@ -19,9 +19,11 @@ traefik-proxy/
 
 | Pieza | Responsabilidad | Depende de |
 | --- | --- | --- |
-| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443); `traefik` (:8080) solo dentro del contenedor, para `/ping`; dashboard y API por `https://dashboard.traefik.localhost` (capacidad `proxy-dashboard`); límites 256 MiB y 1 CPU; endurecido con `read_only`, `no-new-privileges` y solo `NET_BIND_SERVICE` (ACME o plugins, que escriben en disco, chocarían con `read_only`) | imagen `traefik`, `docker.sock` (solo lectura), `config/dynamic/`, `certs/` |
+| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443); `traefik` (:8080) solo dentro del contenedor, para `/ping`; dashboard y API por `https://dashboard.traefik.localhost` (capacidad `proxy-dashboard`); límites 256 MiB y 1 CPU; endurecido con `read_only`, `no-new-privileges` y solo `NET_BIND_SERVICE` (ACME o plugins, que escriben en disco, chocarían con `read_only`) | imagen `traefik`, `socket-proxy` (API de Docker filtrado), `config/dynamic/`, `certs/` |
+| `compose.yaml` › `socket-proxy` | Único servicio con `docker.sock` (solo lectura, usuario `65534` y grupo `DOCKER_GID`); deja pasar a Traefik solo `GET` de versión, lista de contenedores, cada contenedor y eventos, y `HEAD /_ping`; el resto, 403 o 405 | imagen `wollomatic/socket-proxy`, `docker.sock` |
+| `compose.yaml` › red `traefik-socket-proxy` | Red interna (`internal: true`, subred `10.231.0.0/29`) solo entre `traefik` y `socket-proxy`; `-allowfrom` del proxy es esa subred | Docker |
 | `compose.yaml` › red `traefik-public` | Red compartida a la que se unen los proyectos conectados | Docker |
-| Provider Docker | Descubre los contenedores de `traefik-public` con `traefik.enable=true` y crea sus routers desde las labels | `docker.sock`, labels de cada proyecto conectado |
+| Provider Docker | Descubre los contenedores de `traefik-public` con `traefik.enable=true` y crea sus routers desde las labels | `socket-proxy` (`tcp://socket-proxy:2375`), labels de cada proyecto conectado |
 | Provider File | Carga la configuración dinámica de `config/dynamic/*.yml`: los registros de certificados y el router `traefik-dashboard` de `dashboard.yml` | `config/dynamic/` |
 | `scripts/add-project-cert.mjs` | Genera el certificado de un proyecto y escribe su registro; comportamiento en la capacidad `project-certificate` | mkcert, Node |
 | `config/dynamic/<proyecto>.tls.yml` | Registro del par certificado/clave que Traefik sirve por SNI para un proyecto; Traefik lo recoge al reiniciar | `certs/<proyecto>.localhost*.pem`, montaje `./certs:/certs` de `compose.yaml` (rutas `/certs/...` del contenedor) |
@@ -48,3 +50,4 @@ traefik-proxy/
 - 2026-11-25 — Registro de certificados por proyecto (`config/dynamic/<proyecto>.tls.yml`, fuera de git) en lugar de un `tls.yml` compartido; Traefik lo recoge con `docker compose restart`: en Docker Desktop el bind mount no propaga los eventos de ficheros nuevos al provider File; `--providers.file.watch=true` se mantiene por si el host sí propaga los eventos (no medido fuera de Docker Desktop) — feature 0002
 - 2026-11-25 — Dashboard por un router en `config/dynamic/dashboard.yml` hacia `api@internal` (`https://dashboard.traefik.localhost`) en lugar de `api.insecure` en `:8080`; `:8080` deja de publicarse y queda dentro del contenedor solo para `/ping` — feature 0006
 - 2026-11-25 — Imagen con versión exacta (`traefik:v3.8.0`) en lugar del tag `v3`, con Dependabot (`.github/dependabot.yml`, `docker-compose`, semanal, PRs a `develop`) — cada cambio de versión queda en git y llega como PR revisable — patch 0007
+- 2026-11-25 — Traefik llega a Docker por `socket-proxy` (`wollomatic/socket-proxy`), en una red interna con subred fija, en lugar de montar `docker.sock`: el montaje `:ro` no limita el API y quien compromete Traefik controlaría Docker; la subred fija evita que `-allowfrom` dependa de resolver el nombre de Traefik al arrancar — feature 0009

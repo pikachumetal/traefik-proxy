@@ -15,11 +15,11 @@
 
 *Por qué*: son claves privadas firmadas por la CA local de mkcert del usuario.
 
-### Art. II — Socket de Docker solo lectura
+### Art. II — Socket de Docker tras un proxy de solo lectura
 
-`/var/run/docker.sock` se monta siempre con `:ro`.
+`/var/run/docker.sock` solo lo monta el servicio `socket-proxy`, en solo lectura y sin root; Traefik llega a Docker por él, que solo deja pasar lecturas de la lista de contenedores, de cada contenedor, de eventos y de versión.
 
-*Por qué*: Traefik solo necesita leer los contenedores; con escritura, un fallo del proxy controla el Docker del host.
+*Por qué*: el montaje `:ro` no limita el API de Docker: quien llega al socket puede crear contenedores privilegiados; el proxy del socket filtra las peticiones.
 
 ### Art. III — Escucha solo en loopback
 
@@ -27,9 +27,9 @@ Los puertos del proxy se publican ligados a `127.0.0.1` (`"127.0.0.1:443:443"`),
 
 *Por qué*: el dashboard no tiene autenticación y los servicios de desarrollo no deben verse desde la red local.
 
-### Art. IV — Versión de Traefik exacta
+### Art. IV — Versiones exactas de las imágenes
 
-La imagen lleva versión exacta (`traefik:vX.Y.Z`); nunca `latest` ni un tag flotante. Las versiones nuevas llegan como PR de Dependabot a `develop`; un PR de major no se fusiona tal cual: es el aviso para abrir su feature.
+Las imágenes de `compose.yaml` llevan versión exacta (`X.Y.Z` o `vX.Y.Z`, según la publique cada imagen); nunca `latest` ni un tag flotante. Las versiones nuevas llegan como PR de Dependabot a `develop`; un PR de major no se fusiona tal cual: es el aviso para abrir su feature.
 
 *Por qué*: cada cambio de versión queda en git y se revisa; un salto de major cambia la sintaxis de las labels y deja sin rutas a todos los proyectos conectados.
 
