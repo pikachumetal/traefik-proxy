@@ -3,6 +3,7 @@
 ## Comandos
 
 - **Build**: no aplica (imagen oficial, sin build propio)
+- **Actualizar Traefik**: fusionar el PR de Dependabot (versión exacta en `compose.yaml`) y después `docker compose pull` y `docker compose up -d --wait`
 - **Arrancar**: `docker compose up -d`
 - **Parar**: `docker compose down`
 - **Logs**: `docker compose logs -f`
