@@ -4,15 +4,15 @@ services:
     container_name: traefik-proxy
     restart: unless-stopped
     command:
-      # API / Dashboard
+      # API y dashboard (por el router de config/dynamic/dashboard.yml)
       - --api.dashboard=true
-      # Healthcheck
+      # Endpoint /ping para el healthcheck
       - --ping=true
-      # Docker provider
+      # Provider Docker
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik-public
-      # File provider (certificados y router del dashboard)
+      # Provider File (certificados y router del dashboard)
       - --providers.file.directory=/config/dynamic
       - --providers.file.watch=true
       # Entrypoints
@@ -20,10 +20,10 @@ services:
       - --entrypoints.websecure.address=:443
       # Solo dentro del contenedor, para /ping; debe coincidir con el healthcheck
       - --entrypoints.traefik.address=:8080
-      # Redirect HTTP to HTTPS (optional - comment out if not needed)
+      # Redirección de HTTP a HTTPS
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      # Logging
+      # Nivel de log (LOG_LEVEL en .env)
       - --log.level=${LOG_LEVEL:-INFO}
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping", "--entrypoints.traefik.address=:8080"]

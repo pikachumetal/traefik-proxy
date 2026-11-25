@@ -128,10 +128,11 @@ traefik-proxy/
 
 ## Proyectos conectados
 
-| Proyecto  | Dominios               | Certificado               |
-| --------- | ---------------------- | ------------------------- |
-| dev-tools | `*.devtools.localhost` | `devtools.localhost.pem`  |
-| traefik (dashboard) | `*.traefik.localhost` | `traefik.localhost.pem` |
+| Proyecto  | Dominios               | Certificado              |
+| --------- | ---------------------- | ------------------------ |
+| dev-tools | `*.devtools.localhost` | `devtools.localhost.pem` |
+
+El propio proxy usa `*.traefik.localhost` (`traefik.localhost.pem`) para su dashboard.
 
 ## Licencia
 

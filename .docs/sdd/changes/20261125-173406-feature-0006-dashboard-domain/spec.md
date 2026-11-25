@@ -33,7 +33,7 @@ Review de spec propuesta: un revisor con los siete puntos — señales: capacida
 2. El router lleva el prefijo `traefik-` (`traefik-dashboard`), como pide la regla de nombres `<proyecto>-<servicio>` — el proyecto es `traefik`.
 3. El certificado lo genera `node scripts/add-project-cert.mjs traefik` (`*.traefik.localhost`); `README.md` lo añade a la instalación, antes de arrancar, y dice que se regenera en cada máquina nueva — el patrón de la 0002.
 4. `compose.yaml`: se quitan `--api.insecure=true` y el puerto `"127.0.0.1:8080:8080"`; se quedan `--api.dashboard=true` (lo necesita `api@internal`) y `--entrypoints.traefik.address=:8080` sin publicar, porque lo usa `/ping` del healthcheck. Su comentario pasa a decirlo.
-5. URLs de referencia: dashboard en `https://dashboard.traefik.localhost/` (medido hoy en `:8080`: `/` → 301 a `/dashboard/`, el mismo handler `api@internal`) y API en `https://dashboard.traefik.localhost/api/`. Sin middleware.
+5. URLs de referencia: dashboard en `https://dashboard.traefik.localhost/` (medido en `:8080`: `/` → 301 a `/dashboard/`; por el router, 302, el mismo handler `api@internal`) y API en `https://dashboard.traefik.localhost/api/`. Sin middleware.
 6. Cambios en la constitution, Reglas de producto, que se aprueban con esta spec:
    - Dónde viven los datos: «rutas en las labels del `compose.yaml` de cada proyecto conectado, nunca en este repo» pasa a «rutas de los proyectos conectados en las labels de su `compose.yaml`, nunca en este repo; el router del dashboard del propio proxy, en `config/dynamic/dashboard.yml`».
    - Límites: «los puertos 80, 443 y 8080 del host son del proxy» pasa a «los puertos 80 y 443 del host son del proxy»; «solo se publica lo que lleva `traefik.enable=true`» pasa a «de los proyectos conectados, solo se publica lo que lleva `traefik.enable=true`».
@@ -92,7 +92,7 @@ Hoy el dashboard y el API de Traefik se sirven en `http://localhost:8080` con `a
 
 | Qué | Dónde aparece | Destino |
 | --- | --- | --- |
-| Dashboard en `http://localhost:8080` | `README.md:47`; `operations.md:23`; `PRODUCT.md:13`; `architecture.md:22` | Scope: pasan a `https://dashboard.traefik.localhost/dashboard/` |
+| Dashboard en `http://localhost:8080` | `README.md:47`; `operations.md:23`; `PRODUCT.md:13`; `architecture.md:22` | Scope: pasan a `https://dashboard.traefik.localhost/` (decisión 5) |
 | Puerto 8080 del host | `compose.yaml:37`; `README.md:47` y `:106`; `constitution.md:53` | Scope: se retira (decisiones 4 y 6) |
 | `--api.insecure=true` | `compose.yaml:9` | Scope: se retira |
 | API en `traefik-proxy:8080` por la red `traefik-public` | ningún consumidor (decisión 10) | se retira con `api.insecure` |
@@ -164,6 +164,8 @@ Propósito: cómo entra el dev-lead al dashboard y al API del propio proxy.
 - **Regla ante conflicto**: la de la constitution: el nombre de proyecto `traefik` es del propio proxy.
 
 ## Enmiendas
+
+- 2026-11-25 — «Lo que se retira»: el destino del dashboard pasa a la raíz `https://dashboard.traefik.localhost/`, como ya fijaba la decisión 5; la decisión 5 anota el 302 medido por el router — incoherencia interna hallada por el eje Spec — pasada de fix — sin aprobar (alinea la tabla con una decisión aprobada)
 
 ## Aprobaciones
 
