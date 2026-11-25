@@ -10,7 +10,7 @@ Punto de entrada HTTP/HTTPS único para todos los proyectos de desarrollo local.
 
 ## Capabilities and Constraints
 
-- **Es**: un Traefik en Docker Compose que crea la red compartida `traefik-public`, enruta los contenedores que llevan labels de Traefik, sirve los certificados wildcard de mkcert de cada proyecto, redirige HTTP a HTTPS y expone el dashboard en `:8080`.
+- **Es**: un Traefik en Docker Compose que crea la red compartida `traefik-public`, enruta los contenedores que llevan labels de Traefik, sirve los certificados wildcard de mkcert de cada proyecto, redirige HTTP a HTTPS y expone su dashboard en `https://dashboard.traefik.localhost`.
 - **No es**: un proxy para producción ni para máquinas compartidas. Solo sirve para el desarrollo local en la máquina del usuario.
 
 ## Terminology

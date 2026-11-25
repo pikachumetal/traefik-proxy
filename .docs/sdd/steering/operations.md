@@ -20,7 +20,7 @@
 - **Sin filtro**: `compose.yaml`, `config/dynamic/**`, `.env.example`, `scripts/**`
 - **Lint**: ninguno
 - **CI de la base**: ninguna
-- **Acceso a la aplicación**: dashboard en `http://localhost:8080`, sin login; API en `http://127.0.0.1:8080/api/`
+- **Acceso a la aplicación**: dashboard en `https://dashboard.traefik.localhost/`, sin login; API en `https://dashboard.traefik.localhost/api/` (requiere el certificado de `traefik`: `node scripts/add-project-cert.mjs traefik`)
 - **Motor de producción**: no aplica
 - **Temporales**: `config` · no declarado; `scripts` · `.temp/tests/` (los borra al acabar); gate · no declarado
 - **Camino crítico**: ninguno
