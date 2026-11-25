@@ -19,13 +19,15 @@ services:
       # Entrypoints
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
+      # Debe coincidir con --entrypoints.traefik.address del healthcheck
+      - --entrypoints.traefik.address=:8080
       # Redirect HTTP to HTTPS (optional - comment out if not needed)
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       # Logging
       - --log.level=${LOG_LEVEL:-INFO}
     healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      test: ["CMD", "traefik", "healthcheck", "--ping", "--entrypoints.traefik.address=:8080"]
       interval: 10s
       timeout: 3s
       retries: 3
