@@ -27,11 +27,11 @@ Los puertos del proxy se publican ligados a `127.0.0.1` (`"127.0.0.1:443:443"`),
 
 *Por qué*: el dashboard no tiene autenticación y los servicios de desarrollo no deben verse desde la red local.
 
-### Art. IV — Versión de Traefik fijada al major
+### Art. IV — Versión de Traefik exacta
 
-La imagen es `traefik:v3`; nunca `latest`. Subir de major es un cambio propio, con su feature.
+La imagen lleva versión exacta (`traefik:vX.Y.Z`); nunca `latest` ni un tag flotante. Las versiones nuevas llegan como PR de Dependabot a `develop`; un PR de major no se fusiona tal cual: es el aviso para abrir su feature.
 
-*Por qué*: un salto de major cambia la sintaxis de las labels y deja sin rutas a todos los proyectos conectados.
+*Por qué*: cada cambio de versión queda en git y se revisa; un salto de major cambia la sintaxis de las labels y deja sin rutas a todos los proyectos conectados.
 
 ### Art. V — Los proyectos conectados no publican puertos HTTP en el host
 
