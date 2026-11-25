@@ -27,6 +27,8 @@ Este Traefik actúa como punto de entrada único para todos los proyectos de des
    cp .env.example .env
    ```
 
+   `LOG_LEVEL` (DEBUG, INFO, WARN, ERROR) fija el nivel de log de Traefik; aplícalo con `docker compose up -d`.
+
 3. Arranca el proxy:
 
    ```bash

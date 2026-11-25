@@ -14,7 +14,7 @@ Perfil de control: delegate
 | Id | Externo | Tarea | Estado | Tras | Tamaño |
 | --- | --- | --- | --- | --- | --- |
 | 0003 | — | **Healthcheck del proxy**<br>*`docker ps` marca unhealthy si Traefik no responde, y el gate de cierre lo verifica solo*<details><summary>Brief</summary>**Carril:** patch<br>**Requisitos:** `.docs/sdd/steering/operations.md` § Testing (Gate de cierre)<br>**Decisiones ya tomadas:** `--ping=true` y `healthcheck:` con `traefik healthcheck --ping`<br>**Salda:** nada<br>**Toca:** `compose.yaml`, `.docs/sdd/steering/operations.md`</details> | ✅ | 0001 | S |
-| 0004 | — | **.env sin efecto**<br>*LOG_LEVEL de .env.example no llega a Traefik: cablearlo o quitar .env*<details><summary>Brief</summary>**Carril:** patch<br>**Requisitos:** `.docs/sdd/steering/constitution.md` § Reglas de producto (Dónde viven los datos)<br>**Decisiones ya tomadas:** ninguna (cablear `--log.level=${LOG_LEVEL:-INFO}` o borrar `.env.example`, se decide al proponerlo)<br>**Salda:** nada<br>**Toca:** `compose.yaml`, `.env.example`, `README.md`</details> | ⏳ | 0002, 0003 | S |
+| 0004 | — | **.env sin efecto**<br>*LOG_LEVEL de .env.example no llega a Traefik: cablearlo o quitar .env*<details><summary>Brief</summary>**Carril:** patch<br>**Requisitos:** `.docs/sdd/steering/constitution.md` § Reglas de producto (Dónde viven los datos)<br>**Decisiones ya tomadas:** ninguna (cablear `--log.level=${LOG_LEVEL:-INFO}` o borrar `.env.example`, se decide al proponerlo)<br>**Salda:** nada<br>**Toca:** `compose.yaml`, `.env.example`, `README.md`</details> | ✅ | 0002, 0003 | S |
 
 ## Later
 
