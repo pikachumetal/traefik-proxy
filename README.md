@@ -2,9 +2,9 @@
 
 Proxy inverso centralizado para todos los proyectos de desarrollo local.
 
-## Descripcion
+## Descripción
 
-Este Traefik actua como punto de entrada unico para todos los proyectos de desarrollo, evitando conflictos de puertos y centralizando la gestion de certificados TLS.
+Este Traefik actua como punto de entrada único para todos los proyectos de desarrollo, evitando conflictos de puertos y centralizando la gestion de certificados TLS.
 
 ## Requisitos
 
@@ -12,7 +12,7 @@ Este Traefik actua como punto de entrada unico para todos los proyectos de desar
 - Docker Compose
 - [mkcert](https://github.com/FiloSottile/mkcert) (para generar certificados TLS)
 
-## Instalacion
+## Instalación
 
 1. Clona el repositorio:
 
@@ -21,21 +21,23 @@ Este Traefik actua como punto de entrada unico para todos los proyectos de desar
    cd traefik-proxy
    ```
 
-2. Copia el archivo de configuracion:
+2. Copia el archivo de configuración:
 
    **Bash:**
+
    ```bash
    cp .env.example .env
    ```
 
    **PowerShell:**
+
    ```powershell
    Copy-Item .env.example .env
    ```
 
 3. Genera los certificados TLS (ver seccion "Certificados TLS")
 
-4. Configura el archivo hosts (ver seccion "Configuracion de Hosts")
+4. Configura el archivo hosts (ver seccion "Configuración de Hosts")
 
 ## Uso
 
@@ -59,7 +61,7 @@ docker compose logs -f
 
 ## Dashboard
 
-Accede al dashboard de Traefik en: http://localhost:8080
+Accede al dashboard de Traefik en: [localhost](http://localhost:8080)
 
 ## Certificados TLS
 
@@ -68,18 +70,21 @@ Este proxy centraliza los certificados TLS para todos los proyectos. Los certifi
 ### Instalar mkcert
 
 **Windows (Chocolatey):**
+
 ```powershell
 choco install mkcert
 mkcert -install
 ```
 
 **macOS (Homebrew):**
+
 ```bash
 brew install mkcert
 mkcert -install
 ```
 
 **Linux:**
+
 ```bash
 # Ver instrucciones en https://github.com/FiloSottile/mkcert
 ```
@@ -101,6 +106,7 @@ mkcert -cert-file alcstronghold.local.pem -key-file alcstronghold.local-key.pem 
 Cada proyecto tiene un script para generar sus certificados:
 
 **dev-tools:**
+
 ```powershell
 # PowerShell
 .\scripts\generate-certs.ps1
@@ -110,6 +116,7 @@ Cada proyecto tiene un script para generar sus certificados:
 ```
 
 **ALC Stronghold Platform:**
+
 ```powershell
 # PowerShell
 .\scripts\generate-certs.ps1
@@ -131,13 +138,14 @@ tls:
       keyFile: /certs/alcstronghold.local-key.pem
 ```
 
-## Configuracion de Hosts
+## Configuración de Hosts
 
-Los dominios `.local` requieren configuracion en el archivo hosts del sistema.
+Los dominios `.local` requieren configuración en el archivo hosts del sistema.
 
 Cada proyecto tiene su propio script `setup-hosts` que configura sus dominios:
 
 **dev-tools:**
+
 ```powershell
 # Windows (usa gsudo)
 .\scripts\setup-hosts.ps1
@@ -147,6 +155,7 @@ Cada proyecto tiene su propio script `setup-hosts` que configura sus dominios:
 ```
 
 **ALC Stronghold Platform:**
+
 ```powershell
 # Windows (usa gsudo)
 .\scripts\setup-hosts.ps1
@@ -155,9 +164,10 @@ Cada proyecto tiene su propio script `setup-hosts` que configura sus dominios:
 ./scripts/setup-hosts.sh
 ```
 
-### Configuracion manual
+### Configuración manual
 
 Edita el archivo hosts:
+
 - **Windows:** `C:\Windows\System32\drivers\etc\hosts`
 - **Linux/macOS:** `/etc/hosts`
 
@@ -166,6 +176,7 @@ Edita el archivo hosts:
 Para que otros proyectos usen este Traefik:
 
 1. **Declarar la red externa** en su `compose.yaml`:
+
    ```yaml
    networks:
      traefik-public:
@@ -173,6 +184,7 @@ Para que otros proyectos usen este Traefik:
    ```
 
 2. **Conectar servicios a la red** con labels de Traefik:
+
    ```yaml
    services:
      mi-servicio:
@@ -189,20 +201,20 @@ Para que otros proyectos usen este Traefik:
 
 ## Puertos
 
-| Puerto | Descripcion |
-|--------|-------------|
+| Puerto | Descripción |
+| ------ | ----------- |
 | 80     | HTTP        |
 | 443    | HTTPS       |
 | 8080   | Dashboard   |
 
 ## Estructura
 
-```
+```bash
 traefik-proxy/
 ├── compose.yaml
 ├── config/
 │   └── dynamic/
-│       └── tls.yml              # Configuracion de certificados
+│       └── tls.yml              # Configuración de certificados
 ├── certs/                       # Certificados TLS (ignorados por git)
 │   ├── devtools.local.pem
 │   ├── devtools.local-key.pem
@@ -214,9 +226,9 @@ traefik-proxy/
 
 ## Proyectos conectados
 
-| Proyecto | Dominios | Certificado |
-|----------|----------|-------------|
-| dev-tools | `*.devtools.local` | `devtools.local.pem` |
+| Proyecto       | Dominios                | Certificado               |
+| -------------- | ----------------------- | ------------------------- |
+| dev-tools      | `*.devtools.local`      | `devtools.local.pem`      |
 | ALC Stronghold | `*.alcstronghold.local` | `alcstronghold.local.pem` |
 
 ## Licencia
