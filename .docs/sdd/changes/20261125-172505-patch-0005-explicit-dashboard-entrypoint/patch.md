@@ -7,7 +7,7 @@ solution: dev-lead
 status: done
 created: 2026-11-25
 branch: patch/0005-explicit-dashboard-entrypoint
-commit: <hash>
+commit: 76875a6
 ---
 
 # Patch 0005 — Entrypoint del dashboard explícito en el healthcheck
@@ -54,7 +54,11 @@ Review (sonnet, 2026-11-25):
 - No se prueba mover el entrypoint en `command:` — aceptado como límite: el caso 3 prueba que el healthcheck usa el flag que recibe; los casos 1 y 2, que no hay regresión.
 - El hash del commit sin rellenar — rechazado: lo escribe el cierre.
 
+Validado: 2026-11-25 · «traefik-proxy | Up 3 minutes (healthy) ahopra si validado» · comprobó el estado healthy y que el dashboard en 8080 carga
+
 ## 5. Tiempo (ligero)
 
 - Estimación: 0,15 h + el gate de cierre (`docker compose up -d --wait`, ~17 s)
 - Inicio: 2026-11-25T17:25Z
+- Esfuerzo real: 0,86 h — reloj de la sesión 3,43 h desde 2026-11-25T14:03Z, sin 154 min de espera al dev-lead (66 esperas)
+- Coste de sujetos: no aplica
