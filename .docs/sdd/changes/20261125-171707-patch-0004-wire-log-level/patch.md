@@ -7,7 +7,7 @@ solution: dev-lead
 status: done
 created: 2026-11-25
 branch: patch/0004-wire-log-level
-commit: <hash>
+commit: 0277033
 ---
 
 # Patch 0004 — LOG_LEVEL de .env llega a Traefik
@@ -56,9 +56,13 @@ Review (sonnet, 2026-11-25):
 
 - Evidencia solo con `DEBUG`; vacío e inválido sin probar — aceptado: casos 6 y 7. El revisor esperaba que un valor inválido impidiera arrancar; medido, Traefik arranca y cae a `ERROR` con un aviso en el log.
 - README sin decir qué pasa con un valor inválido — rechazado: el proxy arranca igual, el aviso sale en `docker compose logs` (constitution, Avisos).
-- `commit: <hash>` sin rellenar — rechazado: lo escribe el cierre.
+- El hash del commit sin rellenar — rechazado: lo escribe el cierre.
+
+Validado: 2026-11-25 · «validado» · no detalló qué probó
 
 ## 5. Tiempo (ligero)
 
 - Estimación: 0,2 h + el gate de cierre (`docker compose up -d --wait`, ~17 s)
 - Inicio: 2026-11-25T17:17Z
+- Esfuerzo real: 0,81 h — reloj de la sesión 3,31 h desde 2026-11-25T14:03Z, sin 150 min de espera al dev-lead (61 esperas)
+- Coste de sujetos: no aplica
