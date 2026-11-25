@@ -48,8 +48,8 @@ Sus servicios HTTP entran solo por el proxy; puertos no HTTP (bases de datos, TC
 
 ## Reglas de producto
 
-- **Dónde viven los datos**: configuración estática en los flags `command:` de `compose.yaml`; configuración dinámica en `config/dynamic/*.yml` (vigilada en caliente); rutas en las labels del `compose.yaml` de cada proyecto conectado, nunca en este repo; certificados en `certs/` (fuera de git, generados con mkcert); variables en `.env` (fuera de git) con `.env.example` versionado.
+- **Dónde viven los datos**: configuración estática en los flags `command:` de `compose.yaml`; configuración dinámica en `config/dynamic/*.yml` (vigilada en caliente); rutas de los proyectos conectados en las labels de su `compose.yaml`, nunca en este repo; el router del dashboard del propio proxy, en `config/dynamic/dashboard.yml`; certificados en `certs/` (fuera de git, generados con mkcert); variables en `.env` (fuera de git) con `.env.example` versionado.
 - **Idioma de los nombres**: inglés; routers y services de las labels con prefijo de proyecto: `<proyecto>-<servicio>`.
-- **Límites**: los puertos 80, 443 y 8080 del host son del proxy; una sola instancia por máquina (`container_name: traefik-proxy`, red `traefik-public`); solo se publica lo que lleva `traefik.enable=true`.
+- **Límites**: los puertos 80 y 443 del host son del proxy; una sola instancia por máquina (`container_name: traefik-proxy`, red `traefik-public`); de los proyectos conectados, solo se publica lo que lleva `traefik.enable=true`.
 - **Avisos**: los de Traefik: certificado ausente o inválido → log y certificado autofirmado por defecto (aviso del navegador); router mal configurado → en rojo en el dashboard y en `docker compose logs`; puerto ocupado → falla `docker compose up`.
-- **Regla ante conflicto**: cada proyecto conectado es dueño exclusivo de `*.<proyecto>.localhost` y de su certificado; si dos proyectos reclaman el mismo host, manda el dueño del sufijo y lo del otro es un bug a corregir.
+- **Regla ante conflicto**: cada proyecto conectado es dueño exclusivo de `*.<proyecto>.localhost` y de su certificado; si dos proyectos reclaman el mismo host, manda el dueño del sufijo y lo del otro es un bug a corregir; el nombre de proyecto `traefik` (`*.traefik.localhost`) es del propio proxy.

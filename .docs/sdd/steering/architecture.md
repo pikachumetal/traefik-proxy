@@ -8,9 +8,9 @@ traefik-proxy/
 ├── scripts/
 │   └── add-project-cert.mjs  # genera con mkcert y registra el certificado de un proyecto
 ├── config/
-│   └── dynamic/            # registros <proyecto>.tls.yml, uno por proyecto (provider File; fuera de git)
+│   └── dynamic/            # dashboard.yml (router del dashboard) y registros <proyecto>.tls.yml (fuera de git)
 ├── certs/                  # certificados y claves mkcert (fuera de git)
-├── .env.example            # variables de entorno de ejemplo (hoy sin uso en compose.yaml)
+├── .env.example            # variables de entorno de ejemplo (LOG_LEVEL)
 ├── PRODUCT.md · ROADMAP.md · CHANGELOG.md · CLAUDE.md
 └── .docs/sdd/              # documentación SDD
 ```
@@ -19,10 +19,10 @@ traefik-proxy/
 
 | Pieza | Responsabilidad | Depende de |
 | --- | --- | --- |
-| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443), dashboard y API en :8080 | imagen `traefik`, `docker.sock` (solo lectura), `config/dynamic/`, `certs/` |
+| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443); `traefik` (:8080) solo dentro del contenedor, para `/ping`; dashboard y API por `https://dashboard.traefik.localhost` (capacidad `proxy-dashboard`) | imagen `traefik`, `docker.sock` (solo lectura), `config/dynamic/`, `certs/` |
 | `compose.yaml` › red `traefik-public` | Red compartida a la que se unen los proyectos conectados | Docker |
 | Provider Docker | Descubre los contenedores de `traefik-public` con `traefik.enable=true` y crea sus routers desde las labels | `docker.sock`, labels de cada proyecto conectado |
-| Provider File | Carga la configuración dinámica de `config/dynamic/*.yml` | `config/dynamic/` |
+| Provider File | Carga la configuración dinámica de `config/dynamic/*.yml`: los registros de certificados y el router `traefik-dashboard` de `dashboard.yml` | `config/dynamic/` |
 | `scripts/add-project-cert.mjs` | Genera el certificado de un proyecto y escribe su registro; comportamiento en la capacidad `project-certificate` | mkcert, Node |
 | `config/dynamic/<proyecto>.tls.yml` | Registro del par certificado/clave que Traefik sirve por SNI para un proyecto; Traefik lo recoge al reiniciar | `certs/<proyecto>.localhost*.pem`, montaje `./certs:/certs` de `compose.yaml` (rutas `/certs/...` del contenedor) |
 | `certs/` | Certificados wildcard `*.<proyecto>.localhost` generados por el script | CA local de mkcert |
@@ -32,7 +32,7 @@ traefik-proxy/
 1. El navegador pide `https://<servicio>.<proyecto>.localhost`; el sistema lo resuelve a loopback.
 2. Traefik lo recibe en `websecure` (:443); si llega por `web` (:80), lo redirige a HTTPS.
 3. Traefik elige el certificado por SNI entre los registros de `config/dynamic/`.
-4. El router que creó el provider Docker desde las labels del proyecto conectado casa el `Host` y reenvía al contenedor por `traefik-public`, al puerto de `loadbalancer.server.port`.
+4. El router casa el `Host` (el del provider Docker, desde las labels del proyecto conectado; para `dashboard.traefik.localhost`, el del provider File hacia `api@internal`) y reenvía al contenedor por `traefik-public`, al puerto de `loadbalancer.server.port`, o al dashboard interno.
 
 ## Dónde va lo nuevo
 
@@ -46,3 +46,4 @@ traefik-proxy/
 - 2026-11-25 — Imagen `traefik:v3` en lugar de `latest` — un salto de major rompe las labels de todos los proyectos conectados — sdd-init
 - 2026-11-25 — Puertos ligados a `127.0.0.1` — dashboard sin autenticación y servicios de desarrollo no expuestos a la red — sdd-init
 - 2026-11-25 — Registro de certificados por proyecto (`config/dynamic/<proyecto>.tls.yml`, fuera de git) en lugar de un `tls.yml` compartido; Traefik lo recoge con `docker compose restart`: en Docker Desktop el bind mount no propaga los eventos de ficheros nuevos al provider File; `--providers.file.watch=true` se mantiene por si el host sí propaga los eventos (no medido fuera de Docker Desktop) — feature 0002
+- 2026-11-25 — Dashboard por un router en `config/dynamic/dashboard.yml` hacia `api@internal` (`https://dashboard.traefik.localhost`) en lugar de `api.insecure` en `:8080`; `:8080` deja de publicarse y queda dentro del contenedor solo para `/ping` — feature 0006

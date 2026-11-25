@@ -29,7 +29,13 @@ Este Traefik actúa como punto de entrada único para todos los proyectos de des
 
    `LOG_LEVEL` (DEBUG, INFO, WARN, ERROR) fija el nivel de log de Traefik; aplícalo con `docker compose up -d`.
 
-3. Arranca el proxy:
+3. Genera el certificado del dashboard (en cada máquina, porque queda fuera de git):
+
+   ```bash
+   node scripts/add-project-cert.mjs traefik
+   ```
+
+4. Arranca el proxy:
 
    ```bash
    docker compose up -d
@@ -44,7 +50,7 @@ docker compose logs -f     # ver logs
 docker compose restart     # reiniciar (necesario tras registrar o renovar un certificado)
 ```
 
-Dashboard: [http://localhost:8080](http://localhost:8080). Los puertos 80, 443 y 8080 solo escuchan en `127.0.0.1`.
+Dashboard: [https://dashboard.traefik.localhost](https://dashboard.traefik.localhost) (API en `https://dashboard.traefik.localhost/api/`). Los puertos 80 y 443 solo escuchan en `127.0.0.1`.
 
 ## Conectar un proyecto
 
@@ -57,7 +63,7 @@ Dashboard: [http://localhost:8080](http://localhost:8080). Los puertos 80, 443 y
 
    El script crea `certs/<proyecto>.localhost.pem` y `certs/<proyecto>.localhost-key.pem` para `*.<proyecto>.localhost`, y los registra en `config/dynamic/<proyecto>.tls.yml`. Nada de eso entra en git. Traefik no recoge el registro nuevo hasta reiniciarlo.
 
-   El nombre del proyecto admite minúsculas, números y guiones (sin guion al principio ni al final, hasta 63 caracteres).
+   El nombre del proyecto admite minúsculas, números y guiones (sin guion al principio ni al final, hasta 63 caracteres). El nombre `traefik` es del propio proxy: no lo uses para un proyecto.
 
 2. **Declara la red externa** en su `compose.yaml`:
 
@@ -103,7 +109,6 @@ Borra sus tres ficheros y reinicia el proxy:
 | ------ | ----------------------- |
 | 80     | HTTP (redirige a HTTPS) |
 | 443    | HTTPS                   |
-| 8080   | Dashboard               |
 
 ## Estructura
 
@@ -113,7 +118,9 @@ traefik-proxy/
 ├── scripts/
 │   └── add-project-cert.mjs      # genera y registra el certificado de un proyecto
 ├── config/
-│   └── dynamic/                  # registros <proyecto>.tls.yml (ignorados por git)
+│   └── dynamic/
+│       ├── dashboard.yml         # router del dashboard
+│       └── <proyecto>.tls.yml    # registros de certificados (ignorados por git)
 ├── certs/                        # certificados mkcert (ignorados por git)
 ├── .env.example
 └── .gitignore
@@ -124,6 +131,7 @@ traefik-proxy/
 | Proyecto  | Dominios               | Certificado               |
 | --------- | ---------------------- | ------------------------- |
 | dev-tools | `*.devtools.localhost` | `devtools.localhost.pem`  |
+| traefik (dashboard) | `*.traefik.localhost` | `traefik.localhost.pem` |
 
 ## Licencia
 
