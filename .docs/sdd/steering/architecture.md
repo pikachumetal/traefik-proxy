@@ -19,7 +19,7 @@ traefik-proxy/
 
 | Pieza | Responsabilidad | Depende de |
 | --- | --- | --- |
-| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443); `traefik` (:8080) solo dentro del contenedor, para `/ping`; dashboard y API por `https://dashboard.traefik.localhost` (capacidad `proxy-dashboard`) | imagen `traefik`, `docker.sock` (solo lectura), `config/dynamic/`, `certs/` |
+| `compose.yaml` › `traefik` | Proxy: entrypoints `web` (:80, redirige a `websecure`) y `websecure` (:443); `traefik` (:8080) solo dentro del contenedor, para `/ping`; dashboard y API por `https://dashboard.traefik.localhost` (capacidad `proxy-dashboard`); límites 256 MiB y 1 CPU; endurecido con `read_only`, `no-new-privileges` y solo `NET_BIND_SERVICE` (ACME o plugins, que escriben en disco, chocarían con `read_only`) | imagen `traefik`, `docker.sock` (solo lectura), `config/dynamic/`, `certs/` |
 | `compose.yaml` › red `traefik-public` | Red compartida a la que se unen los proyectos conectados | Docker |
 | Provider Docker | Descubre los contenedores de `traefik-public` con `traefik.enable=true` y crea sus routers desde las labels | `docker.sock`, labels de cada proyecto conectado |
 | Provider File | Carga la configuración dinámica de `config/dynamic/*.yml`: los registros de certificados y el router `traefik-dashboard` de `dashboard.yml` | `config/dynamic/` |

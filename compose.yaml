@@ -3,6 +3,17 @@ services:
     image: traefik:v3.8.0
     container_name: traefik-proxy
     restart: unless-stopped
+    # El margen sobre el consumo normal evita alcanzar el límite con LOG_LEVEL=DEBUG
+    mem_limit: 256m
+    cpus: 1.0
+    # Lee docker.sock: si lo comprometen, que no escale privilegios, no escriba en el contenedor y solo pueda abrir puertos <1024
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
     command:
       # API y dashboard (por el router de config/dynamic/dashboard.yml)
       - --api.dashboard=true
