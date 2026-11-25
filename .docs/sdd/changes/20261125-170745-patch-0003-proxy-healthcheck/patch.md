@@ -7,7 +7,7 @@ solution: dev-lead
 status: done
 created: 2026-11-25
 branch: patch/0003-proxy-healthcheck
-commit: <hash>
+commit: b148e38
 ---
 
 # Patch 0003 — Healthcheck del proxy
@@ -56,13 +56,17 @@ No probado: el paso a `unhealthy` del contenedor real; parar Traefik dentro del 
 
 Review (sonnet, 2026-11-25):
 
-- `commit: <hash>` y §5 sin real — rechazado: el hash y el esfuerzo real los escribe el cierre (`sdd-archive`).
+- `commit` sin hash y §5 sin real — rechazado: el hash y el esfuerzo real los escribe el cierre (`sdd-archive`).
 - El caso 4 no prueba `unhealthy` en el contenedor real — aceptado: anotado arriba como no probado.
 - `smoke` sigue en la spec y el plan de la 0002 — rechazado: son registros de una feature cerrada.
 - El gate solo comprueba `/ping`, no la API ni los providers — aceptado como límite: es lo que pide la fila 0003.
 - Riesgo latente: `traefik healthcheck` usa el entrypoint `traefik` por defecto (:8080); si se mueve, hay que pasárselo al healthcheck — anotado, sin cambio hoy.
 
+Validado: 2026-11-25 · «validado» · no detalló qué probó
+
 ## 5. Tiempo (ligero)
 
 - Estimación: 0,25 h + el gate de cierre (`docker compose up -d --wait`, ~2 s medido en la 0002; con healthcheck, hasta un intervalo más)
 - Inicio: 2026-11-25T17:07Z
+- Esfuerzo real: 0,73 h — reloj de la sesión 3,13 h desde 2026-11-25T14:03Z, sin 144 min de espera al dev-lead (58 esperas)
+- Coste de sujetos: no aplica
