@@ -7,7 +7,7 @@ solution: dev-lead
 status: done
 created: 2026-11-25
 branch: patch/0008-container-limits
-commit: <hash>
+commit: 99946d6
 ---
 
 # Patch 0008 — Límites y endurecimiento del contenedor
@@ -62,7 +62,11 @@ Review (sonnet, 2026-11-25):
 - El hash del commit sin rellenar — rechazado: lo escribe el cierre.
 - «No probado» sin `LOG_LEVEL=DEBUG` ni proyecto real — ya estaba declarado.
 
+Validado: 2026-11-25 · «validado» · no detalló qué probó
+
 ## 5. Tiempo (ligero)
 
 - Estimación: 0,25 h + el gate de cierre (`docker compose up -d --wait`, ~17 s)
 - Inicio: 2026-11-25T18:02Z
+- Esfuerzo real: 1,23 h — reloj de la sesión 4,09 h desde 2026-11-25T14:03Z, sin 171 min de espera al dev-lead (78 esperas)
+- Coste de sujetos: no aplica
