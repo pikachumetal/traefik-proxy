@@ -1,3 +1,4 @@
 # This folder contains TLS certificates
-# Certificates are ignored by git for security
-# Copy your certificates here manually
+
+- Certificates are ignored by git for security
+- Copy your certificates here manually
