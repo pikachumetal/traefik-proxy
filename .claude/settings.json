@@ -1,3 +1,27 @@
 {
-  "permissions": {}
+  "autoMemoryEnabled": false,
+  "extraKnownMarketplaces": {
+    "sdd-kit": {
+      "source": {
+        "source": "github",
+        "repo": "pikachumetal/sdd-kit"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "sdd-kit@sdd-kit": true
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/sdd-kit-loaded.mjs\""
+          }
+        ]
+      }
+    ]
+  }
 }
